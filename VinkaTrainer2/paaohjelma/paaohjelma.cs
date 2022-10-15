@@ -12,7 +12,7 @@ namespace paaohjelma
         PhysicsObject Pelaaja;
         public override void Begin()
         {
-            LuoKentta();
+            Luokentta();
             Asetaohjaimet();
             
 
@@ -20,13 +20,12 @@ namespace paaohjelma
             Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
         }
 
-        public void Luokentta()
+        void Luokentta()
         {
             Pelaaja = LuoPelaaja();
             Level.CreateBorders();
             Background tausta = new Background(1000, 1000);
-            tausta.Image = LoadImage("kuva");
-            LuoPisteet();
+            tausta.Image = LoadImage("taustakuva");
 
 
         }
