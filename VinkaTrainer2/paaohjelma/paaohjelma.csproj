@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -10,6 +10,16 @@
     <ItemGroup>
         <PackageReference Include="Jypeli.NET" Version="11.*" />
         <PackageReference Include="Jypeli.FarseerPhysics.NET" Version="2.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Content\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Content\vinka1.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

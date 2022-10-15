@@ -10,12 +10,13 @@ namespace paaohjelma
     public class paaohjelma : PhysicsGame
     {
         PhysicsObject Pelaaja;
+        double ohjusnopeus = -100;
         public override void Begin()
         {
             Luokentta();
             Asetaohjaimet();
-            
 
+            Timer.CreateAndStart(2, AmmuOhjus);
             PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
             Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
         }
@@ -25,7 +26,6 @@ namespace paaohjelma
             Pelaaja = LuoPelaaja();
             Level.CreateBorders();
             Background tausta = new Background(1000, 1000);
-            tausta.Image = LoadImage("taustakuva");
 
 
         }
@@ -35,9 +35,24 @@ namespace paaohjelma
             Pelaaja.Shape = Shape.Rectangle;
             Pelaaja.Y = 0;
             Pelaaja.X = Level.Left + 20;
-            Pelaaja.Image = LoadImage("vinka");
+            Pelaaja.Image = LoadImage("vinka1");
             Add(Pelaaja);
             return Pelaaja;
+
+        }
+        void AmmuOhjus()
+        {
+            PhysicsObject ohjus = new PhysicsObject(100,20);
+            ohjus.Shape = Shape.Rectangle;
+            int y = RandomGen.NextInt(-500, 500);
+            ohjus.Y = y;
+            ohjus.X = Level.Right;
+            string[] t = {"ohjus1", "ohjus2", "ohjus3", "ohjus4", "ohjus5", "ohjus6", "ohjus7" };
+            int kuva = RandomGen.NextInt(0, 7);
+            ohjus.Image = LoadImage(t[kuva]);
+            ohjus.Velocity = new Vector(ohjusnopeus, 0);
+            ohjusnopeus = ohjusnopeus*2;
+            Add(ohjus);
 
         }
         void Asetaohjaimet()
