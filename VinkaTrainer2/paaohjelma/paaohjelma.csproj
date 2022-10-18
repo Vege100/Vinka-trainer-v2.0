@@ -40,6 +40,9 @@
       <None Update="Content\ohjus7.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Content\rajahdys.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="Content\tausta.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

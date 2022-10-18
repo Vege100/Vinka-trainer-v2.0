@@ -12,8 +12,10 @@ namespace paaohjelma
     {
         PhysicsObject Pelaaja;
         IntMeter pisteLaskuri;
-        int raha = 3;
+        int raha = 30;
         int elama = 3;
+        int telama = 3;
+        double ohjusnopeus = 2;
         public override void Begin()
         {
             Valikko();
@@ -36,25 +38,19 @@ namespace paaohjelma
             Pause();
             Add(pausevalikko);
             pausevalikko.AddItemHandler(0, Continue);
-            pausevalikko.AddItemHandler(1, Giveup);
+            pausevalikko.AddItemHandler(1, Gameover);
 
         }
         void Continue()
         {
             Pause();
         }
-        void Giveup()
-        {
-            raha += pisteLaskuri.Value;
-            Pause();
-            Valikko();
-        }
         void Start()
-        {
+        {   
             Luokentta();
             Asetaohjaimet();
             LuoPistelaskuri();
-            Timer.CreateAndStart(2, AmmuOhjus);
+            Timer.SingleShot(1,AmmuOhjus);
             Timer.CreateAndStart(2, Ammukolikko);
 
         }
@@ -63,19 +59,45 @@ namespace paaohjelma
             MultiSelectWindow points = new MultiSelectWindow("", "Back");
             Add(points);
             points.AddItemHandler(0, Valikko);
+            Label rahana = new Label(50, 20, raha.ToString());
+            rahana.Position = new Vector(Level.Right - 100, Level.Top - 100);
+            Add(rahana);
         }
         void Shop()
         {
-            MultiSelectWindow shop = new MultiSelectWindow("", "Back", "Guns");
+            MultiSelectWindow shop = new MultiSelectWindow("", "Back", "Life + 1","Casino");
             Add(shop);
             shop.AddItemHandler(0, Valikko);
-            shop.AddItemHandler(1, Guns);
-            Label rahana = new Label(50, 20, raha.ToString());
-            Add(rahana);
+            shop.AddItemHandler(1, Elamaa);
+            shop.AddItemHandler(2, Casino);
         }
-        void Guns()
+        void Elamaa()
         {
-            ClearAll();
+            if (raha >= 10)
+            {
+             telama += 1;
+             raha -= 10;
+            }
+            Shop();
+        }
+        void Casino()
+        {
+            MultiSelectWindow casino = new MultiSelectWindow("", "SPIN");
+            casino.AddItemHandler(0, Spinneri);
+            Add(casino);
+
+        }
+        void Spinneri()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                int random = RandomGen.NextInt(0, 2);
+                Label piir = new Label(20,20, random.ToString());
+                piir.Position = new Vector(Level.Left + 100 + i * 100, Level.Top - 100);
+                Add(piir);
+            }
+            Casino();
+            
         }
         void Luokentta()
         {
@@ -84,17 +106,44 @@ namespace paaohjelma
             Level.Background.Image = tausta;
             AddCollisionHandler(Pelaaja, "ohjus", Pelaajatormasi);
             AddCollisionHandler(Pelaaja, "kolikko", Pisteita);
+            ohjusnopeus = 2;
+            elama = telama;
+
+            Level.Height = 1000;
+            Camera.ZoomToLevel();
+
 
 
         }
         void Pisteita(PhysicsObject a, PhysicsObject b)
         {
             raha += 1;
-            b.Destroy();    
+            b.Destroy();
         }
         void Pelaajatormasi(PhysicsObject Pelaaja, PhysicsObject ohjus)
         {
-            Valikko();
+            elama -= 1;
+            Explosion rajahdys = new Explosion(ohjus.Width);
+            rajahdys.Position = (ohjus.Position);
+            Add(rajahdys);
+            ohjus.Destroy();
+            if (elama <= 0)
+            {
+                Explosion pommi = new Explosion(ohjus.Width);
+                pommi.Position = (Pelaaja.Position);
+                Add(pommi);
+                Add(rajahdys);
+                Pelaaja.Destroy();
+                Timer.SingleShot(2, Gameover);
+            }
+        }
+        void Gameover()
+        {
+            MultiSelectWindow loppu = new MultiSelectWindow("kuolit", "Continue");
+            Add(loppu);
+            loppu.AddItemHandler(0, Valikko);
+            Label pisteita = new Label(500, 20, $"sinulla on rahaa {raha}");
+            Add(pisteita);
         }
         PhysicsObject LuoPelaaja()
         {
@@ -113,24 +162,29 @@ namespace paaohjelma
         void AmmuOhjus()
         {
             PhysicsObject ohjus;
-            ohjus = new PhysicsObject(210,50);
+            ohjus = new PhysicsObject(105, 25);
             int y = RandomGen.NextInt(-500, 500);
             ohjus.Y = y;
+            int nopeus = -400;
             ohjus.X = Level.Right;
             int kuva = RandomGen.NextInt(0, 7);
-            string[] t = {"ohjus1", "ohjus2", "ohjus3", "ohjus4", "ohjus5", "ohjus6", "ohjus7" };
+            string[] t = { "ohjus1", "ohjus2", "ohjus3", "ohjus4", "ohjus5", "ohjus6", "ohjus7" };
             Image ohjuskuva = LoadImage(t[kuva]);
             ohjus.Shape = Shape.FromImage(ohjuskuva);
             ohjus.Image = ohjuskuva;
             ohjus.Tag = "ohjus";
+            ohjus.LifetimeLeft = new (25000000);
             pisteLaskuri.Value += 1;
-            ohjus.Velocity = new Vector(-200, 0);
+            if (ohjusnopeus > 0.4) ohjusnopeus = (ohjusnopeus * 0.97);
+            else nopeus = pisteLaskuri.Value * -7;
+            ohjus.Velocity = new Vector(nopeus, 0);
             Add(ohjus);
+            Timer.SingleShot(ohjusnopeus, AmmuOhjus);
 
         }
         void Ammukolikko()
         {
-            
+
             int tod = RandomGen.NextInt(0, 10);
             if (tod < 5) return;
             PhysicsObject kolikko;
@@ -141,7 +195,7 @@ namespace paaohjelma
             kolikko.Tag = "kolikko";
             kolikko.X = Level.Right;
             kolikko.Image = LoadImage("kolikko");
-            kolikko.Velocity = new Vector(-200, 0);
+            kolikko.Velocity = new Vector(-400, 0);
             Add(kolikko);
 
 
@@ -161,9 +215,9 @@ namespace paaohjelma
         }
         void Asetaohjaimet()
         {
-            Vector nopeusYlos = new Vector(0, 200);
-            Vector nopeusAlas = new Vector(0, -200);
-            
+            Vector nopeusYlos = new Vector(0, 500);
+            Vector nopeusAlas = new Vector(0, -500);
+
             Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
             Keyboard.Listen(Key.W, ButtonState.Down, AsetaNopeus, "Kaarto ylös", Pelaaja, nopeusYlos);
             Keyboard.Listen(Key.W, ButtonState.Released, AsetaNopeus, null, Pelaaja, Vector.Zero);
@@ -192,6 +246,9 @@ namespace paaohjelma
             }
 
             kone.Velocity = nopeus;
+            if (nopeus.Y > 0) kone.Angle = Angle.FromDegrees(15);
+            if (nopeus.Y < 0) kone.Angle = Angle.FromDegrees(-15);
+            if (nopeus.Y == 0) kone.Angle = Angle.FromDegrees(0);
         }
     }
 }
