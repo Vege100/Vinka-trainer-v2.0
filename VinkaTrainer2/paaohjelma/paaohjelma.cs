@@ -10,7 +10,7 @@ namespace paaohjelma
 {
     public class paaohjelma : PhysicsGame
     {
-        PhysicsObject Pelaaja;
+        PhysicsObject pelaaja;
         IntMeter pisteLaskuri;
         int raha = 30;
         int elama = 3;
@@ -37,13 +37,9 @@ namespace paaohjelma
             MultiSelectWindow pausevalikko = new MultiSelectWindow("", "Continue", "Giveup");
             Pause();
             Add(pausevalikko);
-            pausevalikko.AddItemHandler(0, Continue);
+            pausevalikko.AddItemHandler(0, Pause);
             pausevalikko.AddItemHandler(1, Gameover);
 
-        }
-        void Continue()
-        {
-            Pause();
         }
         void Start()
         {   
@@ -59,17 +55,18 @@ namespace paaohjelma
             MultiSelectWindow points = new MultiSelectWindow("", "Back");
             Add(points);
             points.AddItemHandler(0, Valikko);
-            Label rahana = new Label(50, 20, raha.ToString());
-            rahana.Position = new Vector(Level.Right - 100, Level.Top - 100);
-            Add(rahana);
         }
         void Shop()
         {
+            ClearAll();
             MultiSelectWindow shop = new MultiSelectWindow("", "Back", "Life + 1","Casino");
             Add(shop);
             shop.AddItemHandler(0, Valikko);
             shop.AddItemHandler(1, Elamaa);
             shop.AddItemHandler(2, Casino);
+            Label rahana = new Label(50, 20, raha.ToString());
+            rahana.Position = new Vector(Level.Right - 100, Level.Top - 100);
+            Add(rahana);
         }
         void Elamaa()
         {
@@ -101,11 +98,11 @@ namespace paaohjelma
         }
         void Luokentta()
         {
-            Pelaaja = LuoPelaaja();
+            pelaaja = LuoPelaaja();
             Image tausta = LoadImage("tausta");
             Level.Background.Image = tausta;
-            AddCollisionHandler(Pelaaja, "ohjus", Pelaajatormasi);
-            AddCollisionHandler(Pelaaja, "kolikko", Pisteita);
+            AddCollisionHandler(pelaaja, "ohjus", Pelaajatormasi);
+            AddCollisionHandler(pelaaja, "kolikko", Pisteita);
             ohjusnopeus = 2;
             elama = telama;
 
@@ -120,7 +117,7 @@ namespace paaohjelma
             raha += 1;
             b.Destroy();
         }
-        void Pelaajatormasi(PhysicsObject Pelaaja, PhysicsObject ohjus)
+        void Pelaajatormasi(PhysicsObject pelaaja, PhysicsObject ohjus)
         {
             elama -= 1;
             Explosion rajahdys = new Explosion(ohjus.Width);
@@ -130,32 +127,39 @@ namespace paaohjelma
             if (elama <= 0)
             {
                 Explosion pommi = new Explosion(ohjus.Width);
-                pommi.Position = (Pelaaja.Position);
+                pommi.Position = (pelaaja.Position);
                 Add(pommi);
                 Add(rajahdys);
-                Pelaaja.Destroy();
+                pelaaja.Destroy();
                 Timer.SingleShot(2, Gameover);
             }
         }
         void Gameover()
         {
+            int loppupisteet = pisteLaskuri.Value;
+            ClearAll();
             MultiSelectWindow loppu = new MultiSelectWindow("kuolit", "Continue");
             Add(loppu);
             loppu.AddItemHandler(0, Valikko);
-            Label pisteita = new Label(500, 20, $"sinulla on rahaa {raha}");
+            loppu.Position = new Vector(0, -200);
+            Label pisteita = new Label(500, 20, $"Points: {loppupisteet}");
+            pisteita.Position = new Vector(0, 0);
+            Label rahaa = new Label(500, 20, $"Cash: {raha}");
+            rahaa.Position = new Vector(0, -50);
             Add(pisteita);
+            Add(rahaa);
         }
         PhysicsObject LuoPelaaja()
         {
             Image vinka = LoadImage("vinkafreimi");
-            PhysicsObject Pelaaja = PhysicsObject.CreateStaticObject(333, 120);
-            Pelaaja.Shape = Shape.FromImage(vinka);
-            Pelaaja.Y = 0;
-            Pelaaja.Tag = "Pelaaja";
-            Pelaaja.X = Level.Left + 150;
-            Pelaaja.Image = LoadImage("vinka3");
-            Add(Pelaaja);
-            return Pelaaja;
+            PhysicsObject pelaaja = PhysicsObject.CreateStaticObject(333, 120);
+            pelaaja.Shape = Shape.FromImage(vinka);
+            pelaaja.Y = 0;
+            pelaaja.Tag = "pelaaja";
+            pelaaja.X = Level.Left + 150;
+            pelaaja.Image = LoadImage("vinka3");
+            Add(pelaaja);
+            return pelaaja;
 
         }
 
@@ -219,17 +223,17 @@ namespace paaohjelma
             Vector nopeusAlas = new Vector(0, -500);
 
             Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
-            Keyboard.Listen(Key.W, ButtonState.Down, AsetaNopeus, "Kaarto ylös", Pelaaja, nopeusYlos);
-            Keyboard.Listen(Key.W, ButtonState.Released, AsetaNopeus, null, Pelaaja, Vector.Zero);
-            Keyboard.Listen(Key.S, ButtonState.Down, AsetaNopeus, "Kaarto alas", Pelaaja, nopeusAlas);
-            Keyboard.Listen(Key.S, ButtonState.Released, AsetaNopeus, null, Pelaaja, Vector.Zero);
+            Keyboard.Listen(Key.W, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeusYlos);
+            Keyboard.Listen(Key.W, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
+            Keyboard.Listen(Key.S, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, nopeusAlas);
+            Keyboard.Listen(Key.S, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
 
-            Keyboard.Listen(Key.Up, ButtonState.Down, AsetaNopeus, "Kaarto ylös", Pelaaja, nopeusYlos);
-            Keyboard.Listen(Key.Up, ButtonState.Released, AsetaNopeus, null, Pelaaja, Vector.Zero);
-            Keyboard.Listen(Key.Down, ButtonState.Down, AsetaNopeus, "Kaarto alas", Pelaaja, nopeusAlas);
-            Keyboard.Listen(Key.Down, ButtonState.Released, AsetaNopeus, null, Pelaaja, Vector.Zero);
+            Keyboard.Listen(Key.Up, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeusYlos);
+            Keyboard.Listen(Key.Up, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
+            Keyboard.Listen(Key.Down, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, nopeusAlas);
+            Keyboard.Listen(Key.Down, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
 
-            Keyboard.Listen(Key.M, ButtonState.Pressed, Pausevalikko, "kakka");
+            Keyboard.Listen(Key.M, ButtonState.Pressed, Pausevalikko, "pause");
         }
 
         void AsetaNopeus(PhysicsObject kone, Vector nopeus)
