@@ -21,7 +21,7 @@ namespace paaohjelma
         void Valikko()
         {
             ClearAll();
-            MultiSelectWindow alkuValikko = new MultiSelectWindow("kakka", "Start", "Points", "Shop", "Quit");
+            MultiSelectWindow alkuValikko = new MultiSelectWindow("VinkaTrainer2", "Start", "Points", "Shop", "Quit");
             Add(alkuValikko);
 
 
@@ -55,6 +55,7 @@ namespace paaohjelma
             Asetaohjaimet();
             LuoPistelaskuri();
             Timer.CreateAndStart(2, AmmuOhjus);
+            Timer.CreateAndStart(2, Ammukolikko);
 
         }
         void Points()
@@ -69,7 +70,7 @@ namespace paaohjelma
             Add(shop);
             shop.AddItemHandler(0, Valikko);
             shop.AddItemHandler(1, Guns);
-            Label rahana = new Label(50,20,raha.ToString());
+            Label rahana = new Label(50, 20, raha.ToString());
             Add(rahana);
         }
         void Guns()
@@ -79,19 +80,31 @@ namespace paaohjelma
         void Luokentta()
         {
             Pelaaja = LuoPelaaja();
-            Image tausta = LoadImage("ohjukset");
-            Level.Background.CreateStars(1000);
+            Image tausta = LoadImage("tausta");
+            Level.Background.Image = tausta;
+            AddCollisionHandler(Pelaaja, "ohjus", Pelaajatormasi);
+            AddCollisionHandler(Pelaaja, "kolikko", Pisteita);
 
 
         }
+        void Pisteita(PhysicsObject a, PhysicsObject b)
+        {
+            raha += 1;
+            b.Destroy();    
+        }
+        void Pelaajatormasi(PhysicsObject Pelaaja, PhysicsObject ohjus)
+        {
+            Valikko();
+        }
         PhysicsObject LuoPelaaja()
         {
-            Image vinka = LoadImage("vinkaframe3");
-            PhysicsObject Pelaaja = PhysicsObject.CreateStaticObject(501, 201);
+            Image vinka = LoadImage("vinkafreimi");
+            PhysicsObject Pelaaja = PhysicsObject.CreateStaticObject(333, 120);
             Pelaaja.Shape = Shape.FromImage(vinka);
             Pelaaja.Y = 0;
+            Pelaaja.Tag = "Pelaaja";
             Pelaaja.X = Level.Left + 150;
-            Pelaaja.Color = Color.Red;
+            Pelaaja.Image = LoadImage("vinka3");
             Add(Pelaaja);
             return Pelaaja;
 
@@ -100,7 +113,6 @@ namespace paaohjelma
         void AmmuOhjus()
         {
             PhysicsObject ohjus;
-            double ohjusnopeus = -100;
             ohjus = new PhysicsObject(210,50);
             int y = RandomGen.NextInt(-500, 500);
             ohjus.Y = y;
@@ -110,10 +122,28 @@ namespace paaohjelma
             Image ohjuskuva = LoadImage(t[kuva]);
             ohjus.Shape = Shape.FromImage(ohjuskuva);
             ohjus.Image = ohjuskuva;
+            ohjus.Tag = "ohjus";
             pisteLaskuri.Value += 1;
-            ohjus.Velocity = new Vector(ohjusnopeus, 0);
-            ohjusnopeus = ohjusnopeus*1.1;
+            ohjus.Velocity = new Vector(-200, 0);
             Add(ohjus);
+
+        }
+        void Ammukolikko()
+        {
+            
+            int tod = RandomGen.NextInt(0, 10);
+            if (tod < 5) return;
+            PhysicsObject kolikko;
+            kolikko = new PhysicsObject(50, 50);
+            kolikko.Shape = Shape.Circle;
+            int y = RandomGen.NextInt(-500, 500);
+            kolikko.Y = y;
+            kolikko.Tag = "kolikko";
+            kolikko.X = Level.Right;
+            kolikko.Image = LoadImage("kolikko");
+            kolikko.Velocity = new Vector(-200, 0);
+            Add(kolikko);
+
 
         }
         void LuoPistelaskuri()
@@ -148,20 +178,20 @@ namespace paaohjelma
             Keyboard.Listen(Key.M, ButtonState.Pressed, Pausevalikko, "kakka");
         }
 
-        void AsetaNopeus(PhysicsObject maila, Vector nopeus)
+        void AsetaNopeus(PhysicsObject kone, Vector nopeus)
         {
-            if ((nopeus.Y < 0) && (maila.Bottom < Level.Bottom))
+            if ((nopeus.Y < 0) && (kone.Bottom < Level.Bottom))
             {
-                maila.Velocity = Vector.Zero;
+                kone.Velocity = Vector.Zero;
                 return;
             }
-            if ((nopeus.Y > 0) && (maila.Top > Level.Top))
+            if ((nopeus.Y > 0) && (kone.Top > Level.Top))
             {
-                maila.Velocity = Vector.Zero;
+                kone.Velocity = Vector.Zero;
                 return;
             }
 
-            maila.Velocity = nopeus;
+            kone.Velocity = nopeus;
         }
     }
 }
