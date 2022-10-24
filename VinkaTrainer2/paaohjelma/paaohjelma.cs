@@ -2,8 +2,10 @@ using Jypeli;
 using Jypeli.Assets;
 using Jypeli.Controls;
 using Jypeli.Widgets;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection.Metadata.Ecma335;
 
 namespace paaohjelma
@@ -16,10 +18,13 @@ namespace paaohjelma
         int elama = 3;
         int telama = 3;
         double ohjusnopeus = 2;
+        
         public override void Begin()
         {
+            IsFullScreen = true;
             Valikko();
         }
+        
         void Valikko()
         {
             ClearAll();
@@ -96,11 +101,72 @@ namespace paaohjelma
             Casino();
             
         }
+        public static string[] Etsisaa()
+        {
+            string[] mika = new string[3];
+            string saa = Lataanetista("https://www.getmetar.com/EFJY");
+            int a = saa.IndexOf("> EFJY ");
+            int b = saa.IndexOf(" Q");
+            saa = saa.Substring(a, b - a);
+            mika[0] = Etsipilvet(saa);
+            mika[1] = Etsisade(saa);
+            return mika;
+        }
+        public static string Etsipilvet(string saa)
+        {
+            string pilvi = "";
+            string[] pilvet = { "SKC", "FEW", "SCT", "BKN", "OVC"};
+            foreach (string s in pilvet)
+            {
+                if (saa.Contains(s))
+                {
+                    pilvi = s;
+                }
+            }
+            return pilvi;
+        }
+        public static string Etsisade(string saa)
+        {
+            string sade = "";
+            string[] sateet = { "DZ", "GR", "GS", "IC", "PL", "RA", "SG", "SN" };
+            foreach (string s in sateet)
+            {
+                if (saa.Contains(s))
+                {
+                    sade = "RA";
+                }
+            }
+            return sade;
+        }
+        public static string Etsiaika()
+        {
+            DateTime aika = DateTime.Now;
+            int paiva = aika.Day;
+            int kuukausi = aika.Month;
+            int vuosi = aika.Year;
+            string kulma = Lataanetista("https://www.timeanddate.com/sun/finland/jyvaskyla");
+            int a = kulma.IndexOf("sunalt");
+            kulma = kulma.Substring(a + 7, 4);
+            string[] numero = kulma.Split(',');
+            double akulma = Convert.ToDouble(numero[0] + numero[1][0]);
+            return "";
+        }
+        public static string Lataanetista(string osoite)
+        {
+            WebClient client = new WebClient();
+            string lataus = client.DownloadString(osoite);
+            return lataus;
+        }
+        
         void Luokentta()
         {
             pelaaja = LuoPelaaja();
             Image tausta = LoadImage("tausta");
-            Level.Background.Image = tausta;
+            string[] saa = Etsisaa();
+            string aika = Etsiaika();
+            {
+                Level.Background.Image = tausta;
+            }
             AddCollisionHandler(pelaaja, "ohjus", Pelaajatormasi);
             AddCollisionHandler(pelaaja, "kolikko", Pisteita);
             ohjusnopeus = 2;
@@ -222,7 +288,6 @@ namespace paaohjelma
             Vector nopeusYlos = new Vector(0, 500);
             Vector nopeusAlas = new Vector(0, -500);
 
-            Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
             Keyboard.Listen(Key.W, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeusYlos);
             Keyboard.Listen(Key.W, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
             Keyboard.Listen(Key.S, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, nopeusAlas);
@@ -255,4 +320,6 @@ namespace paaohjelma
             if (nopeus.Y == 0) kone.Angle = Angle.FromDegrees(0);
         }
     }
+    
+        
 }
