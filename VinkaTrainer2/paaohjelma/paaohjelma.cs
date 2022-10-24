@@ -2,7 +2,6 @@ using Jypeli;
 using Jypeli.Assets;
 using Jypeli.Controls;
 using Jypeli.Widgets;
-using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -138,7 +137,7 @@ namespace paaohjelma
             }
             return sade;
         }
-        public static string Etsiaika()
+        public static double Etsiaika()
         {
             DateTime aika = DateTime.Now;
             int paiva = aika.Day;
@@ -146,10 +145,10 @@ namespace paaohjelma
             int vuosi = aika.Year;
             string kulma = Lataanetista("https://www.timeanddate.com/sun/finland/jyvaskyla");
             int a = kulma.IndexOf("sunalt");
-            kulma = kulma.Substring(a + 7, 4);
+            kulma = kulma.Substring(a + 7, 5);
             string[] numero = kulma.Split(',');
             double akulma = Convert.ToDouble(numero[0] + numero[1][0]);
-            return "";
+            return akulma;
         }
         public static string Lataanetista(string osoite)
         {
@@ -157,23 +156,51 @@ namespace paaohjelma
             string lataus = client.DownloadString(osoite);
             return lataus;
         }
+        void Luosaa()
+        {
+            string[] saa = Etsisaa();
+            if (saa[0].Length != 0)
+            {
+                GameObject pilvi = new(Screen.Width, Screen.Height);
+                pilvi.Image = LoadImage(saa[0]);
+                Add(pilvi,1);
+            }
+            if (saa[1].Length != 0)
+            {
+                GameObject sade = new(Screen.Width, Screen.Height);
+            }
+        }
+        void Piirraaurinko(double ak)
+        {
+            GameObject aurinko = new(200, 200);
+            aurinko.Shape = Shape.Circle;
+            aurinko.Color = new Jypeli.Color(1, (100+ak)/510, 0);
+            aurinko.Position = new Vector(0, Level.Bottom+10*(ak+65));
+            Add(aurinko, -1);
+            
+        }
+        void Piirrataivas(double ak)
+        {
+            Level.Background.CreateStars(1000);
+            GameObject tummennus = new(Screen.Width, Screen.Height);
+            tummennus.Color = new Color(0, 0, 0, 135);
+            Add(tummennus, 2);
+        }
         
         void Luokentta()
         {
+            Luosaa();
+            double auringonkulma = Etsiaika();
+            if (auringonkulma > -65) Piirraaurinko(auringonkulma);
+            else Piirrataivas(auringonkulma);
             pelaaja = LuoPelaaja();
-            Image tausta = LoadImage("tausta");
-            string[] saa = Etsisaa();
-            string aika = Etsiaika();
-            {
-                Level.Background.Image = tausta;
-            }
             AddCollisionHandler(pelaaja, "ohjus", Pelaajatormasi);
             AddCollisionHandler(pelaaja, "kolikko", Pisteita);
             ohjusnopeus = 2;
             elama = telama;
 
-            Level.Height = 1000;
-            Camera.ZoomToLevel();
+            Level.Height = Screen.Height;
+            Level.Width = Screen.Width;
 
 
 
@@ -224,7 +251,7 @@ namespace paaohjelma
             pelaaja.Tag = "pelaaja";
             pelaaja.X = Level.Left + 150;
             pelaaja.Image = LoadImage("vinka3");
-            Add(pelaaja);
+            Add(pelaaja,0);
             return pelaaja;
 
         }
@@ -320,6 +347,5 @@ namespace paaohjelma
             if (nopeus.Y == 0) kone.Angle = Angle.FromDegrees(0);
         }
     }
-    
         
 }
