@@ -148,6 +148,7 @@ namespace paaohjelma
             kulma = kulma.Substring(a + 7, 5);
             string[] numero = kulma.Split(',');
             double akulma = Convert.ToDouble(numero[0] + numero[1][0]);
+            akulma = 0;
             return akulma;
         }
         public static string Lataanetista(string osoite)
@@ -270,7 +271,7 @@ namespace paaohjelma
             ohjus.Shape = Shape.FromImage(ohjuskuva);
             ohjus.Image = ohjuskuva;
             ohjus.Tag = "ohjus";
-            ohjus.LifetimeLeft = new (25000000);
+            ohjus.LifetimeLeft = new (50000000);
             pisteLaskuri.Value += 1;
             if (ohjusnopeus > 0.4) ohjusnopeus = (ohjusnopeus * 0.97);
             else nopeus = pisteLaskuri.Value * -7;
