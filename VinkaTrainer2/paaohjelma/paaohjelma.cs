@@ -18,10 +18,12 @@ namespace paaohjelma
         int telama = 3;
         double ohjusnopeus = 2;
         
+        
         public override void Begin()
         {
             IsFullScreen = true;
             Valikko();
+            Soitavapaata();
         }
         
         void Valikko()
@@ -29,8 +31,7 @@ namespace paaohjelma
             ClearAll();
             MultiSelectWindow alkuValikko = new MultiSelectWindow("VinkaTrainer2", "Start", "Points", "Shop", "Quit");
             Add(alkuValikko);
-
-
+            Luotaustavinka();
             alkuValikko.AddItemHandler(0, Start);
             alkuValikko.AddItemHandler(1, Points);
             alkuValikko.AddItemHandler(2, Shop);
@@ -39,11 +40,23 @@ namespace paaohjelma
         void Pausevalikko()
         {
             MultiSelectWindow pausevalikko = new MultiSelectWindow("", "Continue", "Giveup");
-            Pause();
+            Pausettaa();
             Add(pausevalikko);
-            pausevalikko.AddItemHandler(0, Pause);
+            pausevalikko.AddItemHandler(0, Pausettaa);
             pausevalikko.AddItemHandler(1, Gameover);
 
+        }
+        void Pausettaa()
+        {
+            if (MediaPlayer.IsMuted) Soitamoottoria();
+            else MediaPlayer.Volume = 0;
+            Pause();
+        }
+        void Soitamoottoria()
+        {
+            MediaPlayer.Play("motor");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0.2;
         }
         void Start()
         {   
@@ -58,16 +71,17 @@ namespace paaohjelma
         {
             MultiSelectWindow points = new MultiSelectWindow("", "Back");
             Add(points);
+            Luotaustavinka();
             points.AddItemHandler(0, Valikko);
         }
         void Shop()
         {
             ClearAll();
-            MultiSelectWindow shop = new MultiSelectWindow("", "Back", "Life + 1","Casino");
+            MultiSelectWindow shop = new MultiSelectWindow("", "Back", "Life + 1");
             Add(shop);
+            Luotaustavinka();
             shop.AddItemHandler(0, Valikko);
             shop.AddItemHandler(1, Elamaa);
-            shop.AddItemHandler(2, Casino);
             Label rahana = new Label(50, 20, raha.ToString());
             rahana.Position = new Vector(Level.Right - 100, Level.Top - 100);
             Add(rahana);
@@ -81,25 +95,13 @@ namespace paaohjelma
             }
             Shop();
         }
-        void Casino()
+        void Soitavapaata()
         {
-            MultiSelectWindow casino = new MultiSelectWindow("", "SPIN");
-            casino.AddItemHandler(0, Spinneri);
-            Add(casino);
+            MediaPlayer.Play("copyrightfree");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0.5;
+        }
 
-        }
-        void Spinneri()
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                int random = RandomGen.NextInt(0, 2);
-                Label piir = new Label(20,20, random.ToString());
-                piir.Position = new Vector(Level.Left + 100 + i * 100, Level.Top - 100);
-                Add(piir);
-            }
-            Casino();
-            
-        }
         public static string[] Etsisaa()
         {
             string[] mika = new string[3];
@@ -137,18 +139,34 @@ namespace paaohjelma
             }
             return sade;
         }
+        void Luotaustavinka()
+        {
+            GameObject vinkatausta = new(Screen.Width, Screen.Height);
+            vinkatausta.Image = LoadImage("vinkataustoitta");
+            Add(vinkatausta);
+            GameObject pallo = new(3000, 3000);
+            Level.Background.CreateGradient(Color.White, Color.Blue);
+            pallo.Shape = Shape.Circle;
+            pallo.Image = LoadImage("pallo");
+            pallo.Y = -1250;
+            Add(pallo,-1);
+            Timer ajastin = new Timer();
+            ajastin.Interval = 0.01;
+            ajastin.Timeout += delegate { Kaannapalloa(pallo); };
+            ajastin.Start();
+        }
+        void Kaannapalloa(GameObject a)
+        {
+            a.Angle += Angle.FromDegrees(-0.1);
+        }
+
         public static double Etsiaika()
         {
-            DateTime aika = DateTime.Now;
-            int paiva = aika.Day;
-            int kuukausi = aika.Month;
-            int vuosi = aika.Year;
             string kulma = Lataanetista("https://www.timeanddate.com/sun/finland/jyvaskyla");
             int a = kulma.IndexOf("sunalt");
             kulma = kulma.Substring(a + 7, 5);
             string[] numero = kulma.Split(',');
             double akulma = Convert.ToDouble(numero[0] + numero[1][0]);
-            akulma = 0;
             return akulma;
         }
         public static string Lataanetista(string osoite)
@@ -168,17 +186,13 @@ namespace paaohjelma
             }
             if (saa[1].Length != 0)
             {
-                GameObject sade = new(Screen.Width, Screen.Height);
+                GameObject sato = new(Screen.Width, Screen.Height);
+                Image[] sade = LoadImages("sade1", "sade2", "sade3");
+                sato.Animation = new Animation(sade);
+                sato.Animation.FPS = 10;
+                sato.Animation.Start();
+                Add(sato,-1);
             }
-        }
-        void Piirraaurinko(double ak)
-        {
-            GameObject aurinko = new(200, 200);
-            aurinko.Shape = Shape.Circle;
-            aurinko.Color = new Jypeli.Color(1, (100+ak)/510, 0);
-            aurinko.Position = new Vector(0, Level.Bottom+10*(ak+65));
-            Add(aurinko, -1);
-            
         }
         void Piirrataivas(double ak)
         {
@@ -190,10 +204,12 @@ namespace paaohjelma
         
         void Luokentta()
         {
+            ClearAll();
             Luosaa();
             double auringonkulma = Etsiaika();
-            if (auringonkulma > -65) Piirraaurinko(auringonkulma);
-            else Piirrataivas(auringonkulma);
+            if (auringonkulma < 0) 
+            Soitamoottoria();
+            Piirrataivas(auringonkulma);
             pelaaja = LuoPelaaja();
             AddCollisionHandler(pelaaja, "ohjus", Pelaajatormasi);
             AddCollisionHandler(pelaaja, "kolikko", Pisteita);
@@ -234,6 +250,8 @@ namespace paaohjelma
             ClearAll();
             MultiSelectWindow loppu = new MultiSelectWindow("kuolit", "Continue");
             Add(loppu);
+            Luotaustavinka();
+            Soitavapaata();
             loppu.AddItemHandler(0, Valikko);
             loppu.Position = new Vector(0, -200);
             Label pisteita = new Label(500, 20, $"Points: {loppupisteet}");
