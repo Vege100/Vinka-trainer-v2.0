@@ -28,6 +28,12 @@
       <None Update="Content\FEW.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Content\Ilmane.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Content\Ilmane.wav">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="Content\kolikko.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

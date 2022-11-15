@@ -38,7 +38,7 @@ namespace paaohjelma
             Luolaskuri(1);
             Add(alkuValikko);
             alkuValikko.AddItemHandler(0, Start);
-            alkuValikko.AddItemHandler(1, Points);
+            alkuValikko.AddItemHandler(1, delegate { Points(false); });
             alkuValikko.AddItemHandler(2, Shop);
             alkuValikko.AddItemHandler(3, Exit);
         }
@@ -81,11 +81,25 @@ namespace paaohjelma
         }
 
 
-        void Points()
+        void Points(bool a)
         {
-            toplista.Show();
-            toplista.HighScoreWindow.Closed += Valikkoohjaus;
+            if (a) ClearAll();
+            MultiSelectWindow pisteet = new MultiSelectWindow("", "Are you sure you want to see points?", "I'm afraid");
+            Add(pisteet);
+            pisteet.AddItemHandler(0, Lista);
+            pisteet.AddItemHandler(1, Valikko);
+            if (a) Luotaustavinka();
+            
         }
+
+
+        void Lista()
+        {
+            ClearAll();
+            toplista.Show();
+            toplista.HighScoreWindow.Closed += delegate { Points(true); };
+        }
+
 
 
         void Shop()
@@ -271,6 +285,8 @@ namespace paaohjelma
         void Pisteita(PhysicsObject a, PhysicsObject b)
         {
             rahalaskuri.AddValue(1);
+            SoundEffect klink = LoadSoundEffect("Ilmane");
+            klink.Play();
             b.Destroy();
         }
 
@@ -300,7 +316,6 @@ namespace paaohjelma
             int loppupisteet = pisteLaskuri.Value;
             raha = rahalaskuri;
             ClearAll();
-            Luotaustavinka();
             Soitavapaata();
             toplista.EnterAndShow(loppupisteet);
             toplista.HighScoreWindow.Closed += Valikkoohjaus;
@@ -309,6 +324,8 @@ namespace paaohjelma
 
         public void Valikkoohjaus(Window sender)
         {
+            ClearAll();
+            Luotaustavinka();
             Valikko();
         }
 
@@ -375,21 +392,31 @@ namespace paaohjelma
 
         void Luolaskuri(int a)
         {
+            
             pisteLaskuri = new IntMeter(0);
             rahalaskuri = new IntMeter(raha);
             for (int i = 0+a; i < 2; i++)
             {
 
-            Label pisteNaytto = new Label();
-            if (i == 0) pisteNaytto.X = Screen.Right - 100;
-            else pisteNaytto.X = Screen.Left + 100;
-            pisteNaytto.Y = Screen.Top - 100;
-            pisteNaytto.TextColor = Color.Black;
-            pisteNaytto.Color = Color.White;
-            if (i == 1) pisteNaytto.BindTo(rahalaskuri);
-            else pisteNaytto.BindTo(pisteLaskuri);
-            Add(pisteNaytto);
+                Label pisteNaytto = new Label();
+                if (i == 0) pisteNaytto.X = Screen.Right - 100;
+                else pisteNaytto.X = Screen.Left + 100;
+                pisteNaytto.Y = Screen.Top - 100;
+                pisteNaytto.TextColor = Color.Black;
+                pisteNaytto.Color = Color.White;
+                if (i == 1) pisteNaytto.BindTo(rahalaskuri);
+                else pisteNaytto.BindTo(pisteLaskuri);
+                pisteNaytto.Font = Font.DefaultBold;
+                pisteNaytto.Font.Size = 70;
+                pisteNaytto.TextColor = Color.White;
+                pisteNaytto.Color = new Color(0, 0, 0, 0);
+                Add(pisteNaytto);
             }
+            GameObject kolikko = new(60, 60);
+            kolikko.Y = Screen.Top - 105;
+            kolikko.X = Screen.Left + 160;
+            kolikko.Image = LoadImage("kolikko");
+            Add(kolikko,3);
         }
 
 
