@@ -10,6 +10,12 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace paaohjelma
 {
+    /// @author: Verneri Kilpeläinen ja Samuel Koljonen 
+    /// @version: 2.0 Beta
+    /// <summary>
+    /// Vinka Trainer
+    /// </summary>
+
     public class paaohjelma : PhysicsGame
     {
         PhysicsObject pelaaja;
@@ -21,7 +27,9 @@ namespace paaohjelma
         double ohjusnopeus = 2;
         EasyHighScore toplista = new();
         
-        
+        /// <summary>
+        /// Alustaa ohjelman
+        /// </summary>
         public override void Begin()
         {
             IsFullScreen = true;
@@ -30,7 +38,9 @@ namespace paaohjelma
             Soitavapaata();
         }
         
-
+        /// <summary>
+        /// Aloitusvalikko, joka sisältää liikkumisen eri valikkojen välillä
+        /// </summary>
         void Valikko()
         {
 
@@ -43,7 +53,10 @@ namespace paaohjelma
             alkuValikko.AddItemHandler(3, Exit);
         }
 
-
+        /// <summary>
+        /// Kesken pelin valittava pause, joka avautuu 'm' näppäimestä
+        /// myös luovutus mahdollinen
+        /// </summary>
         void Pausevalikko()
         {
             MultiSelectWindow pausevalikko = new MultiSelectWindow("", "Continue", "Giveup");
@@ -54,7 +67,9 @@ namespace paaohjelma
 
         }
 
-
+        /// <summary>
+        /// ApuAliOhjelma Pauselle, jotta moottorin ääni ei sekoa.
+        /// </summary>
         void Pausettaa()
         {
             if (MediaPlayer.IsMuted) Soitamoottoria();
@@ -62,7 +77,9 @@ namespace paaohjelma
             Pause();
         }
 
-
+        /// <summary>
+        /// Soittaa moottoriääntä
+        /// </summary>
         void Soitamoottoria()
         {
             MediaPlayer.Play("motor");
@@ -70,7 +87,9 @@ namespace paaohjelma
             MediaPlayer.Volume = 0.2;
         }
 
-
+        /// <summary>
+        /// Kutsutaan kun peli aloitetaan
+        /// </summary>
         void Start()
         {   
             Luokentta();
@@ -80,7 +99,11 @@ namespace paaohjelma
             Timer.CreateAndStart(2, Ammukolikko);
         }
 
-
+        /// <summary>
+        /// Easyhighscore sakkaa kuten vinka, joten lisäsimme yhden valikon ja siihen varmistuksen
+        /// jotta taustaa ei tarvitse luoda uudestaan joka kerta
+        /// </summary>
+        /// <param name="a">bool asetuksille</param>
         void Points(bool a)
         {
             if (a) ClearAll();
@@ -92,7 +115,9 @@ namespace paaohjelma
             
         }
 
-
+        /// <summary>
+        /// Näyttää parhaat pisteet! :)
+        /// </summary>
         void Lista()
         {
             ClearAll();
@@ -101,7 +126,9 @@ namespace paaohjelma
         }
 
 
-
+        /// <summary>
+        /// Kauppavalikko, josta voidaan siirtyä aloitukseen tai ostaa elämiä lisää
+        /// </summary>
         void Shop()
         {
             MultiSelectWindow shop = new MultiSelectWindow("", "Back", "1 Life 4 10 coins");
@@ -110,7 +137,9 @@ namespace paaohjelma
             shop.AddItemHandler(1, Elamaa);
         }
 
-
+        /// <summary>
+        /// toteuttaa kaupassa ostetun elämän lisäyksen
+        /// </summary>
         void Elamaa()
         {
             if (rahalaskuri >= 10)
@@ -122,7 +151,9 @@ namespace paaohjelma
             Shop();
         }
 
-
+        /// <summary>
+        /// Soittaa täysin CopyRIghtfree musiikkia! :)
+        /// </summary>
         void Soitavapaata()
         {
             MediaPlayer.Play("copyrightfree");
@@ -130,7 +161,10 @@ namespace paaohjelma
             MediaPlayer.Volume = 0.5;
         }
 
-
+        /// <summary>
+        /// Etsii sään Getmetar sivulta ja toistaiseksi oletuksena EFJY
+        /// </summary>
+        /// <returns>Palauttaa karsitun html, joka sisältää vain metar osuuden</returns>
         public static string[] Etsisaa()
         {
             string[] mika = new string[3];
@@ -143,7 +177,11 @@ namespace paaohjelma
             return mika;
         }
 
-
+        /// <summary>
+        /// Etsii tuodusta stringistä merkkejä pilvistä
+        /// </summary>
+        /// <param name="saa">Metar string</param>
+        /// <returns>Palauttaa onko pilviä vai ei merkkijonona</returns>
         public static string Etsipilvet(string saa)
         {
             string pilvi = "";
@@ -158,7 +196,11 @@ namespace paaohjelma
             return pilvi;
         }
 
-
+        /// <summary>
+        /// Etsii tuodusta stringistä merkkejä Sateesta
+        /// </summary>
+        /// <param name="saa">Metar string</param>
+        /// <returns>Palauttaa onko sadetta vai ei merkkijonona</returns>
         public static string Etsisade(string saa)
         {
             string sade = "";
@@ -173,7 +215,9 @@ namespace paaohjelma
             return sade;
         }
 
-
+        /// <summary>
+        /// Luo taustan Valikoille
+        /// </summary>
         void Luotaustavinka()
         {
             GameObject vinkatausta = new(Screen.Width, Screen.Height);
@@ -183,13 +227,22 @@ namespace paaohjelma
             LuoPallo(3000);
         }
 
-
+        /// <summary>
+        /// Kääntää olioita.
+        /// </summary>
+        /// <param name="a">Mitä käännetään</param>
+        /// <param name="b">kerroin millä käännetään</param>
         void Kaannapalloa(GameObject a,double b)
         {
             a.Angle += Angle.FromDegrees(-0.1*b);
         }
 
-
+        /// <summary>
+        /// Etsii auringonkulman netistä ja karsii HTML
+        /// pelkän kulman ja palauttaa sen double arvona
+        /// Oletuksena jyväskylä.
+        /// </summary>
+        /// <returns>auringonkulma*10</returns>
         public static double Etsiaika()
         {
             string kulma = Lataanetista("https://www.timeanddate.com/sun/finland/jyvaskyla");
@@ -200,7 +253,12 @@ namespace paaohjelma
             return akulma;
         }
 
-
+        /// <summary>
+        /// Lataa netistä annetun sivun ja palauttaa 
+        /// sivun stringinä
+        /// </summary>
+        /// <param name="osoite"></param>
+        /// <returns>Sivu stringinä</returns>
         public static string Lataanetista(string osoite)
         {
             WebClient client = new WebClient();
@@ -208,7 +266,9 @@ namespace paaohjelma
             return lataus;
         }
 
-
+        /// <summary>
+        /// Luo sään ja kutsuu aliohjelmia, jotka karsivat netistä halutut sääilmiöt metarista.
+        /// </summary>
         void Luosaa()
         {
             string[] saa = Etsisaa();
@@ -229,8 +289,10 @@ namespace paaohjelma
             }
         }
 
-
-        void Piirrataivas(double ak)
+        /// <summary>
+        /// Kutsutaan mikäli pitää luoda öinen tausta
+        /// </summary>
+        void Piirrataivas()
         {
             Level.Background.CreateStars(1000);
             GameObject tummennus = new(Screen.Width, Screen.Height);
@@ -239,14 +301,16 @@ namespace paaohjelma
         }
 
 
-        
+        /// <summary>
+        /// Kutsuu aliohjelmia, joissa määritellään sää, pelaaja, ääni ja lisää collisionhandlerit.
+        /// </summary>
         void Luokentta()
         {
             ClearAll();
             Luosaa();
             double auringonkulma = Etsiaika();
             if (auringonkulma < 0) 
-            Piirrataivas(auringonkulma);
+            Piirrataivas();
             Soitamoottoria();
             LuoPallo(15000);
             pelaaja = LuoPelaaja();
@@ -262,7 +326,12 @@ namespace paaohjelma
 
         }
 
-
+        /// <summary>
+        /// Luopallon halutulla koolla
+        /// Toistaiseksi peli vaatii vain kaksi palloa, joten parametreinä ei viedä muuta kuin koko
+        /// ohjelma luo sopivan kuvan pallolle koon mukaan.
+        /// </summary>
+        /// <param name="koko">halkaisija</param>
         void LuoPallo(int koko)
         {
             GameObject pallo = new(koko, koko);
@@ -281,7 +350,12 @@ namespace paaohjelma
             ajastin.Start();
         }
 
-
+        /// <summary>
+        /// kutsutaan collisionhandleristä, 
+        /// antaa pelaajalle kolikon ja soittaa Ilmasta musiikkia! :)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
         void Pisteita(PhysicsObject a, PhysicsObject b)
         {
             rahalaskuri.AddValue(1);
@@ -290,7 +364,12 @@ namespace paaohjelma
             b.Destroy();
         }
 
-
+        /// <summary>
+        /// törmäyskäsittelijä, kun pelaaja törmää
+        /// tuhoaa törmättävän olion ja vie pelaajalta elämää
+        /// </summary>
+        /// <param name="pelaaja">pelaaja</param>
+        /// <param name="ohjus">törmättävä olio</param>
         void Pelaajatormasi(PhysicsObject pelaaja, PhysicsObject ohjus)
         {
             elama -= 1;
@@ -310,7 +389,10 @@ namespace paaohjelma
 
 
         }
-
+        /// <summary>
+        /// Kutsutaan kun pelaaja lopettaa pelin tai elämät loppuvat
+        /// putsaa pöydän ja näyttää ennätykset
+        /// </summary>
         void Gameover()
         {
             int loppupisteet = pisteLaskuri.Value;
@@ -321,7 +403,11 @@ namespace paaohjelma
             toplista.HighScoreWindow.Closed += Valikkoohjaus;
         }
 
-
+        /// <summary>
+        /// Highscore vaatii Clearall() poistumisen jälkeen, joten
+        /// aliohjelma putsaa pöydät ja kutsuu taustan ja valikon
+        /// </summary>
+        /// <param name="sender">Ikkuna.</param>
         public void Valikkoohjaus(Window sender)
         {
             ClearAll();
@@ -329,7 +415,11 @@ namespace paaohjelma
             Valikko();
         }
 
-
+        /// <summary>
+        /// luo pelaajan ja palauttaa sen jotta sille
+        /// voidaan luoda törmäyskäsittelijöitä
+        /// </summary>
+        /// <returns></returns>
         PhysicsObject LuoPelaaja()
         {
             Image vinka = LoadImage("vinkafreimi");
@@ -340,26 +430,32 @@ namespace paaohjelma
             pelaaja.X = Level.Left + 150;
             pelaaja.Image = LoadImage("vinka3");
             Add(pelaaja,0);
+            Timer.CreateAndStart(0.01, Paivita);
             return pelaaja;
 
         }
 
-
+        /// <summary>
+        /// Ampuu ohjuksen random y arvolla ja kutsuu itseään uudestaan.
+        /// jokaisella kutsulla muutetaan arvoja, joilla manipuloidaan mm. ohjuksen nopeutta ja kutsun tiheyttä
+        /// </summary>
         void AmmuOhjus()
         {
             PhysicsObject ohjus;
             ohjus = new PhysicsObject(105, 25);
+            int nopeus = -400;
             int y = RandomGen.NextInt(-500, 500);
             ohjus.Y = y;
-            int nopeus = -400;
             ohjus.X = Level.Right;
+
             int kuva = RandomGen.NextInt(0, 7);
             string[] t = { "ohjus1", "ohjus2", "ohjus3", "ohjus4", "ohjus5", "ohjus6", "ohjus7" };
             Image ohjuskuva = LoadImage(t[kuva]);
             ohjus.Shape = Shape.FromImage(ohjuskuva);
             ohjus.Image = ohjuskuva;
+
             ohjus.Tag = "ohjus";
-            ohjus.LifetimeLeft = new (50000000);
+            ohjus.LifetimeLeft = new (50000000); // ei tarvi käsitellä törmäyksiä, kun ohjukset eivät ole hengissä liian kauan.
             pisteLaskuri.Value += 1;
             if (ohjusnopeus > 0.4) ohjusnopeus = (ohjusnopeus * 0.97);
             else nopeus = pisteLaskuri.Value * -7;
@@ -369,7 +465,9 @@ namespace paaohjelma
 
         }
 
-
+        /// <summary>
+        /// ampuu kolikoita
+        /// </summary>
         void Ammukolikko()
         {
 
@@ -389,12 +487,16 @@ namespace paaohjelma
 
         }
 
-
+        /// <summary>
+        /// Luolaskureita näyttöön, erilaskurit numeroitu.
+        /// lisäksii kutsuu visuaalista apua
+        /// </summary>
+        /// <param name="a">mikä laskuri luodaan</param>
         void Luolaskuri(int a)
         {
             
-            pisteLaskuri = new IntMeter(0);
-            rahalaskuri = new IntMeter(raha);
+            pisteLaskuri = new IntMeter(0); 
+            rahalaskuri = new IntMeter(raha); // vakiona raha, johon arvo tallennetaan, sillä ClearAll komento tyhjentää intmeterit.
             for (int i = 0+a; i < 2; i++)
             {
 
@@ -412,53 +514,87 @@ namespace paaohjelma
                 pisteNaytto.Color = new Color(0, 0, 0, 0);
                 Add(pisteNaytto);
             }
+            Laskurikolikko();
+
+        }
+
+        /// <summary>
+        /// Luo laskurille visuaalista ilmettä.
+        /// </summary>
+        void Laskurikolikko()
+        {
             GameObject kolikko = new(60, 60);
             kolikko.Y = Screen.Top - 105;
             kolikko.X = Screen.Left + 160;
             kolikko.Image = LoadImage("kolikko");
-            Add(kolikko,3);
+            Add(kolikko, 3);
         }
 
-
+        /// <summary>
+        /// asettaa ohjaimet.
+        /// </summary>
         void Asetaohjaimet()
         {
-            Vector nopeusYlos = new Vector(0, 500);
-            Vector nopeusAlas = new Vector(0, -500);
+            Vector nopeus = new Vector(0, 500);
+            
 
-            Keyboard.Listen(Key.W, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeusYlos);
+            Keyboard.Listen(Key.W, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeus);
             Keyboard.Listen(Key.W, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
-            Keyboard.Listen(Key.S, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, nopeusAlas);
+            Keyboard.Listen(Key.S, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, -nopeus);
             Keyboard.Listen(Key.S, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
 
-            Keyboard.Listen(Key.Up, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeusYlos);
+            Keyboard.Listen(Key.Up, ButtonState.Down, AsetaNopeus, "Kaarto ylös", pelaaja, nopeus);
             Keyboard.Listen(Key.Up, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
-            Keyboard.Listen(Key.Down, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, nopeusAlas);
+            Keyboard.Listen(Key.Down, ButtonState.Down, AsetaNopeus, "Kaarto alas", pelaaja, -nopeus);
             Keyboard.Listen(Key.Down, ButtonState.Released, AsetaNopeus, null, pelaaja, Vector.Zero);
 
             Keyboard.Listen(Key.M, ButtonState.Pressed, Pausevalikko, "pause");
+            Keyboard.Listen(Key.Escape, ButtonState.Pressed, Pausevalikko, "pause");
         }
 
-
+        /// <summary>
+        /// Asettaa pelaajan nopeuden ja pysäyttää sen, jotta ei mennä kentästä ulos
+        /// </summary>
+        /// <param name="kone"></param>
+        /// <param name="nopeus"></param>
         void AsetaNopeus(PhysicsObject kone, Vector nopeus)
         {
-            if ((nopeus.Y < 0) && (kone.Bottom < Level.Bottom))
+            if ((nopeus.Y < 0) && (kone.Y < Level.Bottom+50))
             {
                 kone.Velocity = Vector.Zero;
                 return;
             }
-            if ((nopeus.Y > 0) && (kone.Top > Level.Top))
+            if ((nopeus.Y > 0) && (kone.Y > Level.Top-50))
             {
                 kone.Velocity = Vector.Zero;
                 return;
             }
 
             kone.Velocity = nopeus;
-            if (nopeus.Y > 0) kone.Angle = Angle.FromDegrees(15);
-            if (nopeus.Y < 0) kone.Angle = Angle.FromDegrees(-15);
-            if (nopeus.Y == 0) kone.Angle = Angle.FromDegrees(0);
+            if (nopeus.Y > 0) Kaannapelaajaa(kone, -2);
+            if (nopeus.Y < 0) Kaannapelaajaa(kone, 2);
         }
 
 
+        /// <summary>
+        /// kääntää pelaajaa ohjattaessa
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        void Kaannapelaajaa(PhysicsObject a, double b)
+        {
+            a.Angle += Angle.FromDegrees(-1*b);
+        }
+
+
+        /// <summary>
+        /// Trimmi KUnnoSSA! (Y) :)
+        /// </summary>
+        void Paivita()
+        {
+            if (pelaaja.Angle > Angle.FromDegrees(0)) pelaaja.Angle += Angle.FromDegrees(-0.7);
+            if (pelaaja.Angle < Angle.FromDegrees(0)) pelaaja.Angle += Angle.FromDegrees(0.7);
+        }
     }
         
 }
