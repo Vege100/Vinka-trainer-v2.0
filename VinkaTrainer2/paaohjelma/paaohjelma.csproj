@@ -64,6 +64,9 @@
       <None Update="Content\pallo.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Content\pelipallo.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="Content\rajahdys.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

@@ -1,3 +1,4 @@
+using FontStashSharp;
 using Jypeli;
 using Jypeli.Assets;
 using Jypeli.Controls;
@@ -13,30 +14,36 @@ namespace paaohjelma
     {
         PhysicsObject pelaaja;
         IntMeter pisteLaskuri;
+        IntMeter rahalaskuri;
         int raha = 30;
         int elama = 3;
         int telama = 3;
         double ohjusnopeus = 2;
+        EasyHighScore toplista = new();
         
         
         public override void Begin()
         {
             IsFullScreen = true;
             Valikko();
+            Luotaustavinka();
             Soitavapaata();
         }
         
+
         void Valikko()
         {
-            ClearAll();
+
             MultiSelectWindow alkuValikko = new MultiSelectWindow("VinkaTrainer2", "Start", "Points", "Shop", "Quit");
+            Luolaskuri(1);
             Add(alkuValikko);
-            Luotaustavinka();
             alkuValikko.AddItemHandler(0, Start);
             alkuValikko.AddItemHandler(1, Points);
             alkuValikko.AddItemHandler(2, Shop);
             alkuValikko.AddItemHandler(3, Exit);
         }
+
+
         void Pausevalikko()
         {
             MultiSelectWindow pausevalikko = new MultiSelectWindow("", "Continue", "Giveup");
@@ -46,61 +53,69 @@ namespace paaohjelma
             pausevalikko.AddItemHandler(1, Gameover);
 
         }
+
+
         void Pausettaa()
         {
             if (MediaPlayer.IsMuted) Soitamoottoria();
             else MediaPlayer.Volume = 0;
             Pause();
         }
+
+
         void Soitamoottoria()
         {
             MediaPlayer.Play("motor");
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = 0.2;
         }
+
+
         void Start()
         {   
             Luokentta();
             Asetaohjaimet();
-            LuoPistelaskuri();
+            Luolaskuri(0);
             Timer.SingleShot(1,AmmuOhjus);
             Timer.CreateAndStart(2, Ammukolikko);
-
         }
+
+
         void Points()
         {
-            MultiSelectWindow points = new MultiSelectWindow("", "Back");
-            Add(points);
-            Luotaustavinka();
-            points.AddItemHandler(0, Valikko);
+            toplista.Show();
+            toplista.HighScoreWindow.Closed += Valikkoohjaus;
         }
+
+
         void Shop()
         {
-            ClearAll();
-            MultiSelectWindow shop = new MultiSelectWindow("", "Back", "Life + 1");
+            MultiSelectWindow shop = new MultiSelectWindow("", "Back", "1 Life 4 10 coins");
             Add(shop);
-            Luotaustavinka();
             shop.AddItemHandler(0, Valikko);
             shop.AddItemHandler(1, Elamaa);
-            Label rahana = new Label(50, 20, raha.ToString());
-            rahana.Position = new Vector(Level.Right - 100, Level.Top - 100);
-            Add(rahana);
         }
+
+
         void Elamaa()
         {
-            if (raha >= 10)
+            if (rahalaskuri >= 10)
             {
              telama += 1;
+             rahalaskuri.AddValue(-10);
              raha -= 10;
             }
             Shop();
         }
+
+
         void Soitavapaata()
         {
             MediaPlayer.Play("copyrightfree");
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = 0.5;
         }
+
 
         public static string[] Etsisaa()
         {
@@ -113,6 +128,8 @@ namespace paaohjelma
             mika[1] = Etsisade(saa);
             return mika;
         }
+
+
         public static string Etsipilvet(string saa)
         {
             string pilvi = "";
@@ -126,6 +143,8 @@ namespace paaohjelma
             }
             return pilvi;
         }
+
+
         public static string Etsisade(string saa)
         {
             string sade = "";
@@ -139,26 +158,23 @@ namespace paaohjelma
             }
             return sade;
         }
+
+
         void Luotaustavinka()
         {
             GameObject vinkatausta = new(Screen.Width, Screen.Height);
             vinkatausta.Image = LoadImage("vinkataustoitta");
             Add(vinkatausta);
-            GameObject pallo = new(3000, 3000);
             Level.Background.CreateGradient(Color.White, Color.Blue);
-            pallo.Shape = Shape.Circle;
-            pallo.Image = LoadImage("pallo");
-            pallo.Y = -1250;
-            Add(pallo,-1);
-            Timer ajastin = new Timer();
-            ajastin.Interval = 0.01;
-            ajastin.Timeout += delegate { Kaannapalloa(pallo); };
-            ajastin.Start();
+            LuoPallo(3000);
         }
-        void Kaannapalloa(GameObject a)
+
+
+        void Kaannapalloa(GameObject a,double b)
         {
-            a.Angle += Angle.FromDegrees(-0.1);
+            a.Angle += Angle.FromDegrees(-0.1*b);
         }
+
 
         public static double Etsiaika()
         {
@@ -169,12 +185,16 @@ namespace paaohjelma
             double akulma = Convert.ToDouble(numero[0] + numero[1][0]);
             return akulma;
         }
+
+
         public static string Lataanetista(string osoite)
         {
             WebClient client = new WebClient();
             string lataus = client.DownloadString(osoite);
             return lataus;
         }
+
+
         void Luosaa()
         {
             string[] saa = Etsisaa();
@@ -194,6 +214,8 @@ namespace paaohjelma
                 Add(sato,-1);
             }
         }
+
+
         void Piirrataivas(double ak)
         {
             Level.Background.CreateStars(1000);
@@ -201,6 +223,8 @@ namespace paaohjelma
             tummennus.Color = new Color(0, 0, 0, 135);
             Add(tummennus, 2);
         }
+
+
         
         void Luokentta()
         {
@@ -208,8 +232,9 @@ namespace paaohjelma
             Luosaa();
             double auringonkulma = Etsiaika();
             if (auringonkulma < 0) 
-            Soitamoottoria();
             Piirrataivas(auringonkulma);
+            Soitamoottoria();
+            LuoPallo(15000);
             pelaaja = LuoPelaaja();
             AddCollisionHandler(pelaaja, "ohjus", Pelaajatormasi);
             AddCollisionHandler(pelaaja, "kolikko", Pisteita);
@@ -222,11 +247,34 @@ namespace paaohjelma
 
 
         }
+
+
+        void LuoPallo(int koko)
+        {
+            GameObject pallo = new(koko, koko);
+            pallo.Shape = Shape.Circle;
+            if (koko == 3000) pallo.Image = LoadImage("pallo");
+            else pallo.Image = LoadImage("pelipallo");
+            if (koko == 3000) pallo.Y = -koko / 2.5;
+            else pallo.Y = -koko / 2.05;
+            Add(pallo, -2);
+            double suunta;
+            if (koko == 3000) suunta = 1;
+            else suunta = -0.1;
+            Timer ajastin = new Timer();
+            ajastin.Interval = 0.01;
+            ajastin.Timeout += delegate { Kaannapalloa(pallo,suunta); };
+            ajastin.Start();
+        }
+
+
         void Pisteita(PhysicsObject a, PhysicsObject b)
         {
-            raha += 1;
+            rahalaskuri.AddValue(1);
             b.Destroy();
         }
+
+
         void Pelaajatormasi(PhysicsObject pelaaja, PhysicsObject ohjus)
         {
             elama -= 1;
@@ -243,24 +291,28 @@ namespace paaohjelma
                 pelaaja.Destroy();
                 Timer.SingleShot(2, Gameover);
             }
+
+
         }
+
         void Gameover()
         {
             int loppupisteet = pisteLaskuri.Value;
+            raha = rahalaskuri;
             ClearAll();
-            MultiSelectWindow loppu = new MultiSelectWindow("kuolit", "Continue");
-            Add(loppu);
             Luotaustavinka();
             Soitavapaata();
-            loppu.AddItemHandler(0, Valikko);
-            loppu.Position = new Vector(0, -200);
-            Label pisteita = new Label(500, 20, $"Points: {loppupisteet}");
-            pisteita.Position = new Vector(0, 0);
-            Label rahaa = new Label(500, 20, $"Cash: {raha}");
-            rahaa.Position = new Vector(0, -50);
-            Add(pisteita);
-            Add(rahaa);
+            toplista.EnterAndShow(loppupisteet);
+            toplista.HighScoreWindow.Closed += Valikkoohjaus;
         }
+
+
+        public void Valikkoohjaus(Window sender)
+        {
+            Valikko();
+        }
+
+
         PhysicsObject LuoPelaaja()
         {
             Image vinka = LoadImage("vinkafreimi");
@@ -274,6 +326,7 @@ namespace paaohjelma
             return pelaaja;
 
         }
+
 
         void AmmuOhjus()
         {
@@ -298,6 +351,8 @@ namespace paaohjelma
             Timer.SingleShot(ohjusnopeus, AmmuOhjus);
 
         }
+
+
         void Ammukolikko()
         {
 
@@ -316,19 +371,28 @@ namespace paaohjelma
 
 
         }
-        void LuoPistelaskuri()
+
+
+        void Luolaskuri(int a)
         {
             pisteLaskuri = new IntMeter(0);
+            rahalaskuri = new IntMeter(raha);
+            for (int i = 0+a; i < 2; i++)
+            {
 
             Label pisteNaytto = new Label();
-            pisteNaytto.X = Screen.Left + 100;
+            if (i == 0) pisteNaytto.X = Screen.Right - 100;
+            else pisteNaytto.X = Screen.Left + 100;
             pisteNaytto.Y = Screen.Top - 100;
             pisteNaytto.TextColor = Color.Black;
             pisteNaytto.Color = Color.White;
-
-            pisteNaytto.BindTo(pisteLaskuri);
+            if (i == 1) pisteNaytto.BindTo(rahalaskuri);
+            else pisteNaytto.BindTo(pisteLaskuri);
             Add(pisteNaytto);
+            }
         }
+
+
         void Asetaohjaimet()
         {
             Vector nopeusYlos = new Vector(0, 500);
@@ -346,6 +410,7 @@ namespace paaohjelma
 
             Keyboard.Listen(Key.M, ButtonState.Pressed, Pausevalikko, "pause");
         }
+
 
         void AsetaNopeus(PhysicsObject kone, Vector nopeus)
         {
@@ -365,6 +430,8 @@ namespace paaohjelma
             if (nopeus.Y < 0) kone.Angle = Angle.FromDegrees(-15);
             if (nopeus.Y == 0) kone.Angle = Angle.FromDegrees(0);
         }
+
+
     }
         
 }
