@@ -1,12 +1,9 @@
-using FontStashSharp;
 using Jypeli;
 using Jypeli.Assets;
-using Jypeli.Controls;
 using Jypeli.Widgets;
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Reflection.Metadata.Ecma335;
+
 
 namespace paaohjelma
 {
@@ -337,12 +334,8 @@ namespace paaohjelma
             AddCollisionHandler(pelaaja, "kolikko", Pisteita);
             ohjusnopeus = 2;
             elama = telama;
-
             Level.Height = Screen.Height;
             Level.Width = Screen.Width;
-
-
-
         }
 
 
@@ -408,8 +401,6 @@ namespace paaohjelma
                 pelaaja.Destroy();
                 Timer.SingleShot(2, Gameover);
             }
-
-
         }
 
 
@@ -458,7 +449,6 @@ namespace paaohjelma
             Add(pelaaja,0);
             Timer.CreateAndStart(0.01, Paivita);
             return pelaaja;
-
         }
 
 
@@ -489,7 +479,6 @@ namespace paaohjelma
             ohjus.Velocity = new Vector(nopeus, 0);
             Add(ohjus);
             Timer.SingleShot(ohjusnopeus, AmmuOhjus);
-
         }
 
 
@@ -542,7 +531,6 @@ namespace paaohjelma
                 Add(pisteNaytto);
             }
             Laskurikolikko();
-
         }
 
 
@@ -599,7 +587,6 @@ namespace paaohjelma
                 kone.Velocity = Vector.Zero;
                 return;
             }
-
             kone.Velocity = nopeus;
             if (nopeus.Y > 0) Kaannapelaajaa(kone, -2);
             if (nopeus.Y < 0) Kaannapelaajaa(kone, 2);
@@ -625,8 +612,5 @@ namespace paaohjelma
             if (pelaaja.Angle > Angle.FromDegrees(0)) pelaaja.Angle += Angle.FromDegrees(-0.7);
             if (pelaaja.Angle < Angle.FromDegrees(0)) pelaaja.Angle += Angle.FromDegrees(0.7);
         }
-
-
-    }
-        
+    }    
 }
