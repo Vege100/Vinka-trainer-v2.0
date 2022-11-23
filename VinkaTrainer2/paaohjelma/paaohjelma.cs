@@ -64,7 +64,6 @@ namespace paaohjelma
             Add(pausevalikko);
             pausevalikko.AddItemHandler(0, Pausettaa);
             pausevalikko.AddItemHandler(1, Gameover);
-
         }
 
 
@@ -116,7 +115,6 @@ namespace paaohjelma
             pisteet.AddItemHandler(0, Lista);
             pisteet.AddItemHandler(1, Valikko);
             if (a) Luotaustavinka();
-            
         }
 
 
