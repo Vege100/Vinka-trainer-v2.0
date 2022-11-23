@@ -26,6 +26,7 @@ namespace paaohjelma
         int telama = 3;
         double ohjusnopeus = 2;
         EasyHighScore toplista = new();
+
         
         /// <summary>
         /// Alustaa ohjelman
@@ -37,6 +38,7 @@ namespace paaohjelma
             Luotaustavinka();
             Soitavapaata();
         }
+
         
         /// <summary>
         /// Aloitusvalikko, joka sisältää liikkumisen eri valikkojen välillä
@@ -44,7 +46,7 @@ namespace paaohjelma
         void Valikko()
         {
 
-            MultiSelectWindow alkuValikko = new MultiSelectWindow("VinkaTrainer2", "Start", "Points", "Shop", "Quit");
+            MultiSelectWindow alkuValikko = new MultiSelectWindow("", "Start", "Points", "Shop", "Quit");
             Luolaskuri(1);
             Add(alkuValikko);
             alkuValikko.AddItemHandler(0, Start);
@@ -52,6 +54,7 @@ namespace paaohjelma
             alkuValikko.AddItemHandler(2, Shop);
             alkuValikko.AddItemHandler(3, Exit);
         }
+
 
         /// <summary>
         /// Kesken pelin valittava pause, joka avautuu 'm' näppäimestä
@@ -67,6 +70,7 @@ namespace paaohjelma
 
         }
 
+
         /// <summary>
         /// ApuAliOhjelma Pauselle, jotta moottorin ääni ei sekoa.
         /// </summary>
@@ -77,6 +81,7 @@ namespace paaohjelma
             Pause();
         }
 
+
         /// <summary>
         /// Soittaa moottoriääntä
         /// </summary>
@@ -86,6 +91,7 @@ namespace paaohjelma
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = 0.2;
         }
+
 
         /// <summary>
         /// Kutsutaan kun peli aloitetaan
@@ -98,6 +104,7 @@ namespace paaohjelma
             Timer.SingleShot(1,AmmuOhjus);
             Timer.CreateAndStart(2, Ammukolikko);
         }
+
 
         /// <summary>
         /// Easyhighscore sakkaa kuten vinka, joten lisäsimme yhden valikon ja siihen varmistuksen
@@ -114,6 +121,7 @@ namespace paaohjelma
             if (a) Luotaustavinka();
             
         }
+
 
         /// <summary>
         /// Näyttää parhaat pisteet! :)
@@ -137,6 +145,7 @@ namespace paaohjelma
             shop.AddItemHandler(1, Elamaa);
         }
 
+
         /// <summary>
         /// toteuttaa kaupassa ostetun elämän lisäyksen
         /// </summary>
@@ -151,6 +160,7 @@ namespace paaohjelma
             Shop();
         }
 
+
         /// <summary>
         /// Soittaa täysin CopyRIghtfree musiikkia! :)
         /// </summary>
@@ -160,6 +170,7 @@ namespace paaohjelma
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = 0.5;
         }
+
 
         /// <summary>
         /// Etsii sään Getmetar sivulta ja toistaiseksi oletuksena EFJY
@@ -176,6 +187,7 @@ namespace paaohjelma
             mika[1] = Etsisade(saa);
             return mika;
         }
+
 
         /// <summary>
         /// Etsii tuodusta stringistä merkkejä pilvistä
@@ -196,6 +208,7 @@ namespace paaohjelma
             return pilvi;
         }
 
+
         /// <summary>
         /// Etsii tuodusta stringistä merkkejä Sateesta
         /// </summary>
@@ -215,6 +228,7 @@ namespace paaohjelma
             return sade;
         }
 
+
         /// <summary>
         /// Luo taustan Valikoille
         /// </summary>
@@ -227,6 +241,7 @@ namespace paaohjelma
             LuoPallo(3000);
         }
 
+
         /// <summary>
         /// Kääntää olioita.
         /// </summary>
@@ -236,6 +251,7 @@ namespace paaohjelma
         {
             a.Angle += Angle.FromDegrees(-0.1*b);
         }
+
 
         /// <summary>
         /// Etsii auringonkulman netistä ja karsii HTML
@@ -253,6 +269,7 @@ namespace paaohjelma
             return akulma;
         }
 
+
         /// <summary>
         /// Lataa netistä annetun sivun ja palauttaa 
         /// sivun stringinä
@@ -265,6 +282,7 @@ namespace paaohjelma
             string lataus = client.DownloadString(osoite);
             return lataus;
         }
+
 
         /// <summary>
         /// Luo sään ja kutsuu aliohjelmia, jotka karsivat netistä halutut sääilmiöt metarista.
@@ -288,6 +306,7 @@ namespace paaohjelma
                 Add(sato,-1);
             }
         }
+
 
         /// <summary>
         /// Kutsutaan mikäli pitää luoda öinen tausta
@@ -326,6 +345,7 @@ namespace paaohjelma
 
         }
 
+
         /// <summary>
         /// Luopallon halutulla koolla
         /// Toistaiseksi peli vaatii vain kaksi palloa, joten parametreinä ei viedä muuta kuin koko
@@ -350,6 +370,7 @@ namespace paaohjelma
             ajastin.Start();
         }
 
+
         /// <summary>
         /// kutsutaan collisionhandleristä, 
         /// antaa pelaajalle kolikon ja soittaa Ilmasta musiikkia! :)
@@ -363,6 +384,7 @@ namespace paaohjelma
             klink.Play();
             b.Destroy();
         }
+
 
         /// <summary>
         /// törmäyskäsittelijä, kun pelaaja törmää
@@ -389,6 +411,8 @@ namespace paaohjelma
 
 
         }
+
+
         /// <summary>
         /// Kutsutaan kun pelaaja lopettaa pelin tai elämät loppuvat
         /// putsaa pöydän ja näyttää ennätykset
@@ -403,6 +427,7 @@ namespace paaohjelma
             toplista.HighScoreWindow.Closed += Valikkoohjaus;
         }
 
+
         /// <summary>
         /// Highscore vaatii Clearall() poistumisen jälkeen, joten
         /// aliohjelma putsaa pöydät ja kutsuu taustan ja valikon
@@ -414,6 +439,7 @@ namespace paaohjelma
             Luotaustavinka();
             Valikko();
         }
+
 
         /// <summary>
         /// luo pelaajan ja palauttaa sen jotta sille
@@ -434,6 +460,7 @@ namespace paaohjelma
             return pelaaja;
 
         }
+
 
         /// <summary>
         /// Ampuu ohjuksen random y arvolla ja kutsuu itseään uudestaan.
@@ -465,6 +492,7 @@ namespace paaohjelma
 
         }
 
+
         /// <summary>
         /// ampuu kolikoita
         /// </summary>
@@ -483,9 +511,8 @@ namespace paaohjelma
             kolikko.Image = LoadImage("kolikko");
             kolikko.Velocity = new Vector(-400, 0);
             Add(kolikko);
-
-
         }
+
 
         /// <summary>
         /// Luolaskureita näyttöön, erilaskurit numeroitu.
@@ -518,6 +545,7 @@ namespace paaohjelma
 
         }
 
+
         /// <summary>
         /// Luo laskurille visuaalista ilmettä.
         /// </summary>
@@ -529,6 +557,7 @@ namespace paaohjelma
             kolikko.Image = LoadImage("kolikko");
             Add(kolikko, 3);
         }
+
 
         /// <summary>
         /// asettaa ohjaimet.
@@ -551,6 +580,7 @@ namespace paaohjelma
             Keyboard.Listen(Key.M, ButtonState.Pressed, Pausevalikko, "pause");
             Keyboard.Listen(Key.Escape, ButtonState.Pressed, Pausevalikko, "pause");
         }
+
 
         /// <summary>
         /// Asettaa pelaajan nopeuden ja pysäyttää sen, jotta ei mennä kentästä ulos
@@ -595,6 +625,8 @@ namespace paaohjelma
             if (pelaaja.Angle > Angle.FromDegrees(0)) pelaaja.Angle += Angle.FromDegrees(-0.7);
             if (pelaaja.Angle < Angle.FromDegrees(0)) pelaaja.Angle += Angle.FromDegrees(0.7);
         }
+
+
     }
         
 }
